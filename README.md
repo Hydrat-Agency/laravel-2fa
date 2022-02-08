@@ -7,8 +7,9 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Configuration](#configuration)
-    - [Custom Policies](#custom-policies)
-    - [Custom Drivers](#custom-drivers)
+    - [Built-in](#configuration-builtin)
+    - [Custom Policies](#configuration-custom-policies)
+    - [Custom Drivers](#configuration-custom-drivers)
 - [Contribute](#contribute)
 
 <a name="introduction"></a>
@@ -35,6 +36,9 @@ composer require hydrat-agency/laravel-2fa
 ```php
 'providers' => [   
     [...]
+    /*
+     * Package Service Providers...
+     */
     Hydrat\Laravel2FA\Laravel2FAServiceProvider::class,
 ],
 ```
@@ -55,7 +59,7 @@ This will import 2 files :
 php artisan migrate
 ```
 
-5. Add the following lines in your User model (e.g App\Models\User.php)
+5. Add the following lines in your User model (e.g `App\Models\User.php`)
 
  - Before the class declaration, add these lines:
 
@@ -64,13 +68,13 @@ use Hydrat\Laravel2FA\TwoFactorAuthenticatable;
 use Hydrat\Laravel2FA\Contracts\TwoFactorAuthenticatableContract;
 ```
 
- - Change the class definition to implements the `TwoFactorAuthenticatableContract` contract :
+ - Alter the class definition to implements the `TwoFactorAuthenticatableContract` contract :
 
 ```php
-class User extends Model implements AuthenticatableContract,
-                                    AuthorizableContract,
-                                    CanResetPasswordContract,
-                                    TwoFactorAuthenticatableContract
+class User extends Authenticatable implements AuthenticatableContract,
+                                              AuthorizableContract,
+                                              CanResetPasswordContract,
+                                              TwoFactorAuthenticatableContract
 ```
 
  - Add the `TwoFactorAuthenticatable` trait :
@@ -114,7 +118,7 @@ class LoginController extends Controller
     }      
 ```
 
-🚀 You may also use the shorthand version if you wish : 
+> 🚀 You may also use the shorthand version if you like it most : 
 
 ```php
     /**
@@ -138,14 +142,17 @@ That's it ! Now you want to change the configurations & the view file.
 
 ## Configuration
 
+<a name="configuration-builtin"></a>
+
+### Built-in
 // TODO
 
-<a name="custom-policies"></a>
+<a name="configuration-custom-policies"></a>
 
 ### Custom policies
 // TODO
 
-<a name="custom-drivers"></a>
+<a name="configuration-custom-drivers"></a>
 
 ### Custom driver
 // TODO
