@@ -154,7 +154,7 @@ All configurations are set in the `config/laravel-2fa.php` file which should hav
 
 ### Built-in
 
-First of all, you will need to choose which policies applies. A policy job is the check if the two-factor auth must occur, or if it can be skipped (e.g : the browser is known ? skeep the two-factor auth).
+First of all, you will need to choose which policies applies. A policy job is to check if the two-factor auth must occur, or if it can be skipped (e.g : the browser is known ? skeep the two-factor auth).
 
 The policies are defined in the `policy` key. Rules can be combined, with an order of priority. Each policy is called, and tells the driver if it should trigger the two-factor auth. When a policy requires a two-factor auth, the check stop and its `message()` will be used as the `$reason` in the view (see [Building the view](#building-view) section).   
 
@@ -449,6 +449,26 @@ return [
 ];
 ``` 
 
+So policies need to perform actions when a unser successful loggued with 2FA complete, for example to write a cookie or something in the database. You can do this job in the `onSucceed()` method of your Policy :  
+
+```php
+    /**
+     * An action to perform on successful 2FA login.
+     * May be used to remember stuff for the next policy check.
+     *
+     * @return void
+     */
+    public function onSucceed(): void
+    {
+        Cookie::queue(
+            '2fa_remember',
+            $this->attempt->uid,
+            1440
+        );
+    }
+```
+
+
 <a name="configuration-custom-drivers"></a>
 
 ### Custom driver
@@ -459,6 +479,7 @@ If you need more flexibility in the process, you can extend the `BaseDriver` cla
 namespace App\Auth\Drivers;
 
 use Hydrat\Laravel2FA\Drivers\BaseDriver;
+use Hydrat\Laravel2FA\Contracts\TwoFactorAuthenticatableContract as Authenticatable;
 
 class CustomDriver extends BaseDriver
 {
@@ -477,7 +498,6 @@ class CustomDriver extends BaseDriver
 }
 ```
 
-⚠️ If you wish to build it from scratch, you MUST implement the `TwoFactorDriverContract`.  
 Don't forget to update `driver` key in the config file : 
 
 
@@ -486,6 +506,9 @@ return [
     'driver' => \App\Auth\Drivers\CustomDriver::class;
 ];
 ``` 
+
+⚠️ If you wish to build a driver from scratch, you MUST implement the [TwoFactorDriverContract](https://github.com/Hydrat-Agency/laravel-2fa/blob/main/src/Contracts/TwoFactorDriverContract.php).  
+
 
 <a name="contribute"></a>
 
