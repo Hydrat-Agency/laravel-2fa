@@ -27,6 +27,7 @@ class Laravel2FAServiceProvider extends ServiceProvider
 
         $this->loadMigrationsFrom($dir . '/migrations');
         $this->loadRoutesFrom($dir . '/routes.php');
+        $this->loadTranslationsFrom($dir . '/lang');
 
         $this->publishes([
             $dir . '/config' => base_path('config'),
