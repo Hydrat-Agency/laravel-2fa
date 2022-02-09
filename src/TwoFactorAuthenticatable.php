@@ -13,12 +13,24 @@ trait TwoFactorAuthenticatable
      */
     public function generateTwoFactorToken(): Token
     {
-        Token::where('user_id', $this->id)->delete();
+        $this->deleteTwoFactorTokens();
+
+        $lifetime = config('laravel-2fa.options.token_lifetime', 10);
 
         return Token::create([
             'user_id'    => $this->id,
             'token'      => rand(100000, 999999),
-            'expires_at' => now()->addMinutes(10),
+            'expires_at' => now()->addMinutes($lifetime),
         ]);
+    }
+    
+    /**
+     * Delete the user two-factor authentication tokens.
+     *
+     * @return void
+     */
+    public function deleteTwoFactorTokens(): void
+    {
+        Token::where('user_id', $this->id)->delete();
     }
 }

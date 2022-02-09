@@ -4,6 +4,7 @@ namespace Hydrat\Laravel2FA\Notifications;
 
 use Illuminate\Notifications\Notification;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Messages\NexmoMessage;
 
 class TwoFactorToken extends Notification
 {
@@ -54,6 +55,19 @@ class TwoFactorToken extends Notification
     }
 
     /**
+     * Get the Vonage / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return NexmoMessage
+     */
+    public function toNexmo($notifiable)
+    {
+        return (new NexmoMessage)
+                    ->content('Your two-factor token is ' . $this->token)
+                    ->from('MYAPP');
+    }
+
+    /**
      * Get the array representation of the notification.
      *
      * @param  mixed  $notifiable
@@ -62,7 +76,7 @@ class TwoFactorToken extends Notification
     public function toArray($notifiable)
     {
         return [
-            //
+            'token' => $this->token,
         ];
     }
 }

@@ -8,6 +8,7 @@
 - [Installation](#installation)
 - [Configuration](#configuration)
     - [Built-in](#configuration-builtin)
+    - [Custom Notification](#configuration-custom-notification)
     - [Custom Policies](#configuration-custom-policies)
     - [Custom Drivers](#configuration-custom-drivers)
 - [Contribute](#contribute)
@@ -93,7 +94,7 @@ use Authenticatable,
 
 namespace App\Http\Controllers\Auth;
 
-use Hydrat\Laravel2FA\Drivers\BaseDriver as TwoFactorDriver;
+use Hydrat\Laravel2FA\TwoFactorAuth;
 
 class LoginController extends Controller
 {
@@ -109,8 +110,8 @@ class LoginController extends Controller
     protected function authenticated(Request $request, $user)
     {
         # Trigger 2FA if necessary.
-        if (TwoFactorDriver::make()->mustTrigger($user)) {
-            return TwoFactorDriver::make()->trigger($request, $user);
+        if (TwoFactorAuth::getDriver()->mustTrigger($request, $user)) {
+            return TwoFactorAuth::getDriver()->trigger($request, $user);
         }
 
         # If not, do the usual job.
@@ -130,7 +131,7 @@ class LoginController extends Controller
      */
     protected function authenticated(Request $request, $user)
     {
-        return TwoFactorDriver::make()->maybeTrigger($request, $user) 
+        return TwoFactorAuth::getDriver()->maybeTrigger($request, $user) 
                 ?: redirect()->intended($this->redirectPath());
     }
 ```
@@ -148,6 +149,69 @@ That's it ! Now you want to change the configurations & the view file.
 // TODO
 
 <a name="configuration-custom-policies"></a>
+
+<a name="configuration-custom-notification"></a>
+
+## Cutom notification
+
+This package uses the laravel [notifications](https://laravel.com/docs/8.x/notifications) system. The built-in notification is `Hydrat\Laravel2FA\Notifications\TwoFactorToken`, which sends the two-factor token to the user via mail.  
+
+You can extend this notification and configure other channels such as [SMS](https://laravel.com/docs/8.x/notifications#sms-notifications) by extending this class :
+
+```php
+<?php
+
+namespace App\Notifications;
+
+use Hydrat\Laravel2FA\Notifications\TwoFactorToken as BaseTwoFactorToken;
+
+class TwoFactorToken extends BaseTwoFactorToken
+{
+    /**
+     * Get the notification's delivery channels.
+     *
+     * @param  mixed  $notifiable
+     * @return array
+     */
+    public function via($notifiable)
+    {
+        return [
+            'nexmo',
+        ];
+    }
+
+    /**
+     * Get the Vonage / SMS representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return NexmoMessage
+     */
+    public function toNexmo($notifiable)
+    {
+        return (new NexmoMessage)
+                    ->content('Your two-factor token is ' . $this->token)
+                    ->from('MYAPP');
+    }
+}
+```
+
+You'll need to change the `laravel-2fa.notification` configuration key to specify your new notification class :  
+
+```php
+return [
+    [...]
+    /*
+    |--------------------------------------------------------------------------
+    | The 2FA notification containing the token.
+    |--------------------------------------------------------------------------
+    |
+    | Here you may specify an alternative notification to use.
+    |
+    */
+
+    'notification' => \App\Notifications\TwoFactorToken::class,
+];
+```
 
 ### Custom policies
 // TODO

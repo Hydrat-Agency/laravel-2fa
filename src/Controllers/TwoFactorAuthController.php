@@ -54,7 +54,7 @@ class TwoFactorAuthController extends Controller
             $request->session()->get('2fa:auth:remember')
         );
             
-        TwoFactorDriver::make()->clear($request);
+        TwoFactorDriver::make()->succeed($request, $user);
         
         return redirect()->intended($this->redirectPath());
     }
