@@ -5,10 +5,12 @@
     "version": "1.0",
     "keywords": [
         "laravel",
+        "laravel-package",
         "auth",
         "authorization",
         "login",
-        "laravel-package"
+        "tow-factor",
+        "suspicius login"
     ],
     "license": "MIT",
     "authors": [

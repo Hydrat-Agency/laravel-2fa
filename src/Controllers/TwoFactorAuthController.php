@@ -67,7 +67,7 @@ class TwoFactorAuthController extends Controller
     protected function getViewParams(): array
     {
         return [
-            'message' => 'For security reasons, you must provide the two factor code sent to your email address.',
+            'reason' => session('2fa:auth:reason'),
         ];
     }
 

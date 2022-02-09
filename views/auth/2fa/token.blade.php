@@ -14,8 +14,11 @@
         <h1>Two Factor Verification</h1>
 
         <p class="text-muted">
-            You have received an email which contains two factor login code.
-            {{-- If you haven't received it, press <a href="{{ route('verify.resend') }}">here</a>. --}}
+            For security reasons, you must provide the two factor code sent to your email address
+            @if ($reason)
+                {{ ' because ' . $reason }}
+            @endif
+            .
         </p>
 
         <div class="input-group mb-3">
