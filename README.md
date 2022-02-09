@@ -50,10 +50,6 @@ composer require hydrat-agency/laravel-2fa
 php artisan vendor:publish --provider "Hydrat\Laravel2FA\Laravel2FAServiceProvider"
 ```
 
-This will import 2 files :
- - `config/laravel-2fa.php`
- - `resources/views/auth/2fa/token.blade.php`
-
 4. Run the following command to migrate database :
 
 ```bash
@@ -152,15 +148,15 @@ You may access a `$reason` variable which tells you why the 2FA auth has been tr
 
 ## Configuration
 
-All configurations are set in the `config/laravel-2fa.php` file which should have benn created when you published the package.   
+All configurations are set in the `config/laravel-2fa.php` file which should have been created when you published the package.   
 
 <a name="configuration-builtin"></a>
 
 ### Built-in
 
-First of all, you will need to choose which policies applies. A policy role is the check if the two-factor auth must occur, or if it can be skipped (e.g : the browser is known).
+First of all, you will need to choose which policies applies. A policy job is the check if the two-factor auth must occur, or if it can be skipped (e.g : the browser is known ? skeep the two-factor auth).
 
-The policies are defined in the `policy` key. Rules can be combined, with an order of priority. Each policy is called, and tells the driver if it should trigger the two-factor auth. When a policy requires a two-factor auth, the check stop and the fail message used will be the one of this particular policy (see [Building the view](#building-view) section).   
+The policies are defined in the `policy` key. Rules can be combined, with an order of priority. Each policy is called, and tells the driver if it should trigger the two-factor auth. When a policy requires a two-factor auth, the check stop and its `message()` will be used as the `$reason` in the view (see [Building the view](#building-view) section).   
 
 If none of policies triggers or if the `policy` array is empty, the two-factor authentication is skipped and the user logs in normally.  
 
@@ -177,13 +173,13 @@ Built-in policies are :
 
 | Policy name  | Description  |
 |---|---|
-| `always`  | The 2FA always trigger when logging in, no matter what. |
-| `browser` | We know the browser, using a cookie. |
-| `geoip`   | We know the IP address location |
-| `ip`      | We know the IP address. Please be aware that some users use dynamic IP addresses. |
+| `always`  | The 2FA always triggers when logging in, no matter what. |
+| `browser` | Skip 2FA if we know the browser (using a cookie). |
+| `geoip`   | Skip 2FA if we know the IP address location (based on country, region, city or timezone) |
+| `ip`      | Skip 2FA if we know the IP address. ⚠️ Be aware that some users has dynamic IP addresses. |
 
 
-> Need to create your own policy ? See [Custom Policies](#configuration-custom-policies) section below.
+ℹ️ Need to create your own policy ? See [Custom Policies](#configuration-custom-policies) section below.
 
 Some policies has additionnal settings, which are self-documented in the configuration file.  
 
@@ -217,7 +213,7 @@ return [
 
 ## Cutom notification
 
-This package uses the laravel [notifications](https://laravel.com/docs/8.x/notifications) system. The built-in notification is `Hydrat\Laravel2FA\Notifications\TwoFactorToken`, which sends the two-factor token to the user via mail.  
+This package uses the laravel [notifications](https://laravel.com/docs/8.x/notifications) system. The built-in notification `TwoFactorToken` sends the two-factor token to the user via mail.  
 
 You can extend this notification and configure other channels such as [SMS](https://laravel.com/docs/8.x/notifications#sms-notifications) by extending this class :
 
@@ -375,7 +371,7 @@ class TwoFactorActivePolicy extends AbstractPolicy
 }
 ```
 
-You may also have different checks which returns different reason messages :  
+You may also have different checks which results in different `$reason` messages :  
 
 
 ```php
@@ -406,7 +402,7 @@ class TwoFactorActivePolicy extends AbstractPolicy
         }
 
         if (anyReason()) {
-            return false; // will use the default message
+            return false; // will use the default reason used in message() method.
         }
 
         return true;
@@ -457,7 +453,7 @@ return [
 
 ### Custom driver
 
-If you need more flexibility in the process, you can extend the `BaseDriver` class and change the workflow inside.  
+If you need more flexibility in the process, you can extend the `BaseDriver` class and change its workflow.  
 
 ```php
 namespace App\Auth\Drivers;
@@ -481,7 +477,7 @@ class CustomDriver extends BaseDriver
 }
 ```
 
-If you wish to build it from scratch, you must implement the `TwoFactorDriverContract`.  
+⚠️ If you wish to build it from scratch, you MUST implement the `TwoFactorDriverContract`.  
 Don't forget to update `driver` key in the config file : 
 
 
