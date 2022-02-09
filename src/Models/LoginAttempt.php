@@ -63,7 +63,7 @@ class LoginAttempt extends Model
      */
     public static function newForUser(TwoFactorAuthenticatableContract $user)
     {
-        $ip  = '92.150.209.101'; // $_SERVER['REMOTE_ADDR'];
+        $ip  = $_SERVER['REMOTE_ADDR'];
         $url = 'https://freegeoip.app/json/' . $ip;
         
         $ch = curl_init($url);

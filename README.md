@@ -1,8 +1,8 @@
 # Laravel Two-Factor Authentication
 
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/srmklive/authy.svg?style=flat-square)](https://packagist.org/packages/srmklive/authy)
-[![Total Downloads](https://img.shields.io/packagist/dt/srmklive/authy.svg?style=flat-square)](https://packagist.org/packages/srmklive/authy)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/hydrat-agency/laravel-2fa.svg?style=flat-square)](https://packagist.org/packages/hydrat-agency/laravel-2fa)
+[![Total Downloads](https://img.shields.io/packagist/dt/hydrat-agency/laravel-2fa.svg?style=flat-square)](https://packagist.org/packages/hydrat-agency/laravel-2fa)
 
 - [Introduction](#introduction)
 - [Installation](#installation)
