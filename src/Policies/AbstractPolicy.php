@@ -10,16 +10,22 @@ use Hydrat\Laravel2FA\Contracts\TwoFactorAuthenticatableContract;
 abstract class AbstractPolicy implements TwoFactorPolicyContract
 {
     /**
+     * The incomming request at login.
+     *
      * @var \Illuminate\Http\Request
      */
     protected $request = null;
 
     /**
+     * The user that just loggued in.
+     *
      * @var \Hydrat\Laravel2FA\Contracts\TwoFactorAuthenticatableContract
      */
     protected $user = null;
 
     /**
+     * The login attempt, with UID and IP address data.
+     *
      * @var \Hydrat\Laravel2FA\Models\LoginAttempt
      */
     protected $attempt = null;
@@ -33,6 +39,10 @@ abstract class AbstractPolicy implements TwoFactorPolicyContract
 
     /**
      * The class constructor.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \Hydrat\Laravel2FA\Contracts\TwoFactorPolicyContract $user
+     * @param \Hydrat\Laravel2FA\Models\LoginAttempt $attempt
      *
      * @return void
      */

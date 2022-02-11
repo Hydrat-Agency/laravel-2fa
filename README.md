@@ -291,10 +291,27 @@ To overwrite an existing policy, you may directly extend the policy class :
 
 namespace App\Auth\Policies;
 
-use Hydrat\Laravel2FA\Policies\AlwaysPolicy as BaseAlwaysPolicy;
+use Hydrat\Laravel2FA\Policies\IpPolicy as BaseIpPolicy;
 
-class AlwaysPolicy extends BaseAlwaysPolicy
+class IpPolicy extends BaseIpPolicy
 {
+    /**
+     * Check that the request passes the policy.
+     * If this return false, the 2FA Auth will be triggered.
+     *
+     * @return bool
+     */
+    public function passes(): bool
+    {
+        # Passes the check if the user didn't activate IpPolicy on his account.
+        if ( ! $this->user->hasTwoFactorAuthActiveForIp()) {
+            return true;
+        }
+
+        # Else, run the IpPolicy check.
+        return parent::passes();
+    }
+    
     /**
      * The reason sent to the Notification and the frontend view,
      * to tell the user why the 2FA check was triggered.
@@ -303,7 +320,7 @@ class AlwaysPolicy extends BaseAlwaysPolicy
      */
     public function message(): string
     {
-        return $this->message ?: __('the two-factor is activated for everyone');
+        return $this->message ?: __('your account activated 2FA for unknown IP adresses.');
     }
 }
 ```
@@ -316,25 +333,31 @@ return [
 
     'mapping' => [
         [...]
-        'always' => \Auth\Policies\AlwaysPolicy::class,
+        'ip' => \Auth\Policies\IpPolicy::class,
     ],
 ];
 ``` 
 
-The `AbstractPolicy` has 3 available properties your may use to build you policy :  
+ℹ️ The [AbstractPolicy](https://github.com/Hydrat-Agency/laravel-2fa/blob/main/src/Policies/AbstractPolicy.php) has 3 available properties your may use to build your Policy check in the `passes()` method :  
 
 ```php
 /**
+ * The incomming request at login.
+ * 
  * @var \Illuminate\Http\Request
  */
 protected $request = null;
 
 /**
+ * The user that just loggued in.
+ * 
  * @var \Hydrat\Laravel2FA\Contracts\TwoFactorAuthenticatableContract
  */
 protected $user = null;
 
 /**
+ * The login attempt, with UID and IP address data.
+ * 
  * @var \Hydrat\Laravel2FA\Models\LoginAttempt
  */
 protected $attempt = null;
@@ -350,7 +373,7 @@ namespace App\Auth\Policies;
 
 use Hydrat\Laravel2FA\Policies\AbstractPolicy;
 
-class TwoFactorActivePolicy extends AbstractPolicy
+class ActivePolicy extends AbstractPolicy
 {
     /**
      * Check that the request passes the policy.
@@ -386,7 +409,7 @@ namespace App\Auth\Policies;
 
 use Hydrat\Laravel2FA\Policies\AbstractPolicy;
 
-class TwoFactorActivePolicy extends AbstractPolicy
+class ActivePolicy extends AbstractPolicy
 {
     /**
      * Check that the request passes the policy.
@@ -431,7 +454,7 @@ After creating your policy, you may use it in configuration file :
 ```php
 return [
     'policy' => [
-        \Auth\PoliciesTwoFactorActivePolicy::class,
+        \Auth\Policies\ActivePolicy::class,
     ],
 ];
 ``` 
@@ -441,15 +464,15 @@ Event better, you can create a shortname to keep your `policy` array clean !
 ```php
 return [
     'policy' => [
-        'account', // your new rule !
-        'browser', // if 2FA is not activated for the account, will check if the browser is known
+        'active',  // your new rule !
+        'browser', // if 2FA is not activated for the account, will check anyways if the browser is known
     ],
 
     [...]
 
     'mapping' => [
         [...]
-        'account' => \Auth\Policies\TwoFactorActivePolicy::class,
+        'active' => \Auth\Policies\ActivePolicy::class,
     ],
 ];
 ``` 
