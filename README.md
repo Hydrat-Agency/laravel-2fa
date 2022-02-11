@@ -17,9 +17,11 @@
 
 ## Introduction
 
-This package allows you to enable two-factor authentication in your Laravel applications. It stores tokens locally and notify users about their token using mail, SMS or any custom channel. Supports conditionnal two-factor check using known devices, IP addresses or IP locations.
+This package allow you to enable two-factor authentication in your Laravel applications very easily, without the need to add middleware or any modification to your routes. It stores tokens in your database in a distinct table, so you don't need to alter your `users` table. Notify users about their token via mail, SMS or any custom channel. 
 
-This package is inspired by the [srmklive/laravel-twofactor-authentication](https://github.com/srmklive/laravel-twofactor-authentication) package.  
+Includes native conditionnal check to trigger or not 2FA : you may skip the check when the user is using a known browser, IP address, IP Geo location, or any [custom rule](#configuration-custom-policies).
+
+This package was inspired by the [srmklive/laravel-twofactor-authentication](https://github.com/srmklive/laravel-twofactor-authentication) package, which supports the [Authy](https://authy.com) 2FA auth.  
 
 
 <a name="installation"></a>
@@ -32,7 +34,7 @@ This package is inspired by the [srmklive/laravel-twofactor-authentication](http
 composer require hydrat-agency/laravel-2fa
 ```
 
-2. Add the service provider to your `$providers` array in `config/app.php` file like so: 
+2. Add the service provider to your `providers` array in `config/app.php` file like so: 
 
 ```php
 'providers' => [   
@@ -82,8 +84,9 @@ use Authenticatable,
     CanResetPassword, 
     TwoFactorAuthenticatable;
 ```
+6. Make sure your user model is using the [Notifiable trait](https://laravel.com/docs/8.x/notifications#using-the-notifiable-trait). 
 
-6. You need to change the login workflow by adding the `authenticated` method to your `app\Http\Controllers\Auth\LoginController.php` class.
+7. You need to change the login workflow by adding the `authenticated` method to your `app\Http\Controllers\Auth\LoginController.php` class.
 
 ```php
 <?php
@@ -115,7 +118,7 @@ class LoginController extends Controller
     }      
 ```
 
-> 🚀 You may also use the shorthand version if you like it most : 
+🚀 You may also use the shorthand version if you like it most : 
 
 ```php
     /**
@@ -132,39 +135,41 @@ class LoginController extends Controller
     }
 ```
 
-That's it ! Now you want to change the configurations & the view file.
+That's it ! Now you want to personalize your view and see the configuration section.
 
 
 <a name="building-view"></a>
 
 ## Building the view
 
-When you published the package assets, a new `resources/views/auth/2fa/token.blade.php` file has been created. It's up to you how you design this page, but you must keep the `token` input name and send the form to the `route('auth.2fa.store')` route. 
+When you published the package assets, a new `resources/views/auth/2fa/token.blade.php` file has been created. It's up to you how you design this page, but you MUST keep the `token` form input name and send the form to the `route('auth.2fa.store')` route. 
 
-You may access a `$reason` variable which tells you why the 2FA auth has been triggered. It's up to you to display it to the user or not.
+You may notice a `$reason` variable which tells you why the 2FA auth has been triggered. It's up to you to display it to the user or not, based on your app needs.
 
 
 <a name="configuration"></a>
 
 ## Configuration
 
-All configurations are set in the `config/laravel-2fa.php` file which should have been created when you published the package.   
+All configurations are set in the `config/laravel-2fa.php` file which have been created when you published the package.   
 
 <a name="configuration-builtin"></a>
 
 ### Built-in
 
-First of all, you will need to choose which policies applies. A policy job is to check if the two-factor auth must occur, or if it can be skipped (e.g : the browser is known ? skeep the two-factor auth).
+First of all, you will need to choose which policies applies. A `Policy` job is to check if the two-factor auth must occur, or if it can be skipped (e.g : the browser is known ? skeep the two-factor auth).
 
-The policies are defined in the `policy` key. Rules can be combined, with an order of priority. Each policy is called, and tells the driver if it should trigger the two-factor auth. When a policy requires a two-factor auth, the check stop and its `message()` will be used as the `$reason` in the view (see [Building the view](#building-view) section).   
+The policies are defined in the `policy` key. Rules can be combined, with an order of priority. Each policy is called, and tells the driver if it should trigger the two-factor auth. When a policy requires a two-factor auth, the check stop and its returned `message` will be used as the `$reason` in the view (see [Building the view](#building-view) section).   
 
-If none of policies triggers or if the `policy` array is empty, the two-factor authentication is skipped and the user logs in normally.  
+If none of policies triggers, or if the `policy` array is empty, the two-factor authentication is skipped and the user logs in normally.  
 
 ```php
 return [
     'policy' => [
         'browser',  // first check if we know the browser
-        'geoip', // if so, check if we know the user ip location
+        'geoip',    // if so, check if we know the user ip location
+
+        // if so, no more rules : skip 2FA.
     ],
 ];
 ``` 
@@ -173,7 +178,7 @@ Built-in policies are :
 
 | Policy name  | Description  |
 |---|---|
-| `always`  | The 2FA always triggers when logging in, no matter what. |
+| `always`  | The 2FA always triggers when logging in. |
 | `browser` | Skip 2FA if we know the browser (using a cookie). |
 | `geoip`   | Skip 2FA if we know the IP address location (based on country, region, city or timezone) |
 | `ip`      | Skip 2FA if we know the IP address. ⚠️ Be aware that some users has dynamic IP addresses. |
@@ -254,7 +259,7 @@ class TwoFactorToken extends BaseTwoFactorToken
 }
 ```
 
-You'll need to change the `laravel-2fa.notification` configuration key to specify your new notification class :  
+You'll need to change the `notification` configuration key to specify your new notification class :  
 
 ```php
 return [
@@ -276,10 +281,10 @@ return [
 
 ### Custom policies
 
-If you are not satisfied by built-in policies, you may override an existing policy or create you own.  
-The simpler way of doing this is by extending the `AbstractPolicy`.  
+If you are not satisfied by built-in policies, you may overwrite an existing policy or create you own.  
+All policies MUST extending the `AbstractPolicy`.
 
-To change an existing policy, you may directly extend the policy class :  
+To overwrite an existing policy, you may directly extend the policy class :  
 
 ```php
 <?php
@@ -335,7 +340,7 @@ protected $user = null;
 protected $attempt = null;
 ```
 
-Creating a policy is also trivial. For example, let's say your user might active 2FA for their account in their settings. You could create a policy which verify if the user activated 2FA, and if so fails the `passes()` method, which result in triggering the 2FA auth :  
+Creating a policy is trivial. For example, let's say your user might activate 2FA for their account in settings. You could create a policy which verify if the user activated 2FA, and if so fails the `passes()` method, which result in triggering the 2FA auth :  
 
 
 ```php
@@ -355,7 +360,7 @@ class TwoFactorActivePolicy extends AbstractPolicy
      */
     public function passes(): bool
     {
-        return $user->hasTwoFactorAuthActive() ? false : true;
+        return $this->user->hasTwoFactorAuthActive() ? false : true;
     }
 
     /**
@@ -391,12 +396,12 @@ class TwoFactorActivePolicy extends AbstractPolicy
      */
     public function passes(): bool
     {
-        if ($user->hasTwoFactorAuthActive()) {
+        if ($this->user->hasTwoFactorAuthActive()) {
             $this->message = __('your account activated the 2FA auth');
             return false;
         }
         
-        if ($user->didntSpecifyTwoAuthActive()) {
+        if ($this->user->didntSpecifyTwoAuthActive()) {
             $this->message = __('2FA auth is activated by default');
             return false;
         }
@@ -436,8 +441,8 @@ Event better, you can create a shortname to keep your `policy` array clean !
 ```php
 return [
     'policy' => [
-        'account',
-        'browser', // if not activated for the account, will check if the browser is known
+        'account', // your new rule !
+        'browser', // if 2FA is not activated for the account, will check if the browser is known
     ],
 
     [...]
@@ -449,7 +454,7 @@ return [
 ];
 ``` 
 
-So policies need to perform actions when a unser successful loggued with 2FA complete, for example to write a cookie or something in the database. You can do this job in the `onSucceed()` method of your Policy :  
+Some policies need to perform actions when a user successfully log in with 2FA complete (e.g: write a cookie or something in the database). You can define your callback in the `onSucceed()` method of your Policy :  
 
 ```php
     /**
@@ -473,7 +478,7 @@ So policies need to perform actions when a unser successful loggued with 2FA com
 
 ### Custom driver
 
-If you need more flexibility in the process, you can extend the `BaseDriver` class and change its workflow.  
+If you need more flexibility in the whole process, you can extend the `BaseDriver` class and change its workflow by overwriting any method.  
 
 ```php
 namespace App\Auth\Drivers;
@@ -498,7 +503,7 @@ class CustomDriver extends BaseDriver
 }
 ```
 
-Don't forget to update `driver` key in the config file : 
+Don't forget to update the `driver` key in the config file : 
 
 
 ```php
