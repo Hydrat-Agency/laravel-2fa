@@ -543,4 +543,15 @@ return [
 ## Contribute
 
 Feel free to contribute to the package !  
+If you find any security issue, please contact me at thomas@hydrat.agency instead of creating a public github issue.  
+
 [First contribution guide](https://github.com/firstcontributions/first-contributions/blob/master/README.md)
+
+## Credits
+
+- [Thomas Georgel](https://github.com/tgeorgel)
+- [All Contributors](../../contributors)
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

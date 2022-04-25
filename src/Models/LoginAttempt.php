@@ -72,7 +72,17 @@ class LoginAttempt extends Model
         curl_close($ch);
 
         if (!($infos = json_decode($response))) {
-            return null;
+            $infos = (object) [
+                'country_name' => null,
+                'country_code' => null,
+                'region_name'  => null,
+                'region_code'  => null,
+                'city'         => null,
+                'zip_code'     => null,
+                'time_zone'    => null,
+                'latitude'     => null,
+                'longitude'    => null,
+            ];
         }
 
         return static::create([
