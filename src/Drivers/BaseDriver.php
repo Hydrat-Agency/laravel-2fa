@@ -189,17 +189,16 @@ class BaseDriver implements TwoFactorDriverContract
     protected function getPolicies()
     {
         $mapping  = $this->getPoliciesMapping();
-        $policies = collect(config('laravel-2fa.policy'));
+        $policies = collect(config('laravel-2fa.policy'))->filter();
 
         return $policies->map(function ($policy) use ($mapping) {
             if ($mapping->has($policy)) {
                 $policy = $mapping->get($policy);
             }
 
-            $implements = class_implements($policy);
-            $contract   = TwoFactorPolicyContract::class;
+            $contract = TwoFactorPolicyContract::class;
 
-            if (!class_exists($policy) || !array_key_exists($contract, $implements)) {
+            if (!class_exists($policy) || !array_key_exists($contract, class_implements($policy))) {
                 throw new InvalidPolicyException(sprintf(
                     'The selected `%s` policy is unknown or doesn\'t implement the `%s` contract.',
                     $policy,
