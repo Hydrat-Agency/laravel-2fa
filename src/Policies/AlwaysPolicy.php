@@ -14,7 +14,7 @@ class AlwaysPolicy extends AbstractPolicy
      */
     public function passes(): bool
     {
-        return true;
+        return false; // always trigger 2FA
     }
 
     /**
