@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Auth\LoginController;
 use Hydrat\Laravel2FA\Drivers\BaseDriver as TwoFactorDriver;
+use Inertia\Inertia;
 
 class TwoFactorAuthController extends Controller
 {
@@ -19,7 +20,7 @@ class TwoFactorAuthController extends Controller
     public function index()
     {
         return session('2fa:auth:id')
-                ? view('auth.2fa.token', $this->getViewParams())
+                ? Inertia::render('Auth/Token')
                 : redirect(url('login'));
     }
 
@@ -46,7 +47,7 @@ class TwoFactorAuthController extends Controller
         );
 
         if (! TwoFactorDriver::make()->validateToken($user, $request->token)) {
-            return redirect(route('auth.2fa.index'))->with('error', 'Invalid two-factor authentication token provided!');
+            return redirect(route('token.index'))->with('error', 'Invalid two-factor authentication token provided!');
         }
 
         Auth::login(
