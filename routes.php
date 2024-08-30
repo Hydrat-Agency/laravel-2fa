@@ -14,6 +14,6 @@ use Hydrat\Laravel2FA\Controllers\TwoFactorAuthController;
 */
 
 Route::group(['middleware' => ['web']], function () {
-    Route::get('auth/2fa', [TwoFactorAuthController::class, 'index'])->name('auth.2fa.index');
-    Route::post('auth/2fa', [TwoFactorAuthController::class, 'store'])->name('auth.2fa.store');
+    Route::get('token', [TwoFactorAuthController::class, 'index'])->name('token.index');
+    Route::post('token', [TwoFactorAuthController::class, 'store'])->name('token.store');
 });
