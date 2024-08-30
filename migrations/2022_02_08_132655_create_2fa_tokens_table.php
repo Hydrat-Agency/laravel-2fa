@@ -20,8 +20,6 @@ class Create2faTokensTable extends Migration
             $table->string('token');
             $table->dateTime('expires_at');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
