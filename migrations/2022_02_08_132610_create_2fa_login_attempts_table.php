@@ -15,7 +15,7 @@ class Create2faLoginAttemptsTable extends Migration
     {
         Schema::create('2fa_login_attempts', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id')->unsigned();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('uid');
             $table->boolean('succeed')->default(false);
             $table->string('ip')->nullable();
@@ -29,8 +29,6 @@ class Create2faLoginAttemptsTable extends Migration
             $table->float('lat')->nullable();
             $table->float('lng')->nullable();
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
