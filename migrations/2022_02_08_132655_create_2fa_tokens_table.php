@@ -16,12 +16,10 @@ class Create2faTokensTable extends Migration
         Schema::create('2fa_tokens', function (Blueprint $table) {
             $table->id();
             // $table->unsignedBigInteger('user_id');
-            $table->integer('user_id')->unsigned();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('token');
             $table->dateTime('expires_at');
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
