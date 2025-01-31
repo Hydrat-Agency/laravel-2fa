@@ -14,7 +14,7 @@ class Create2faTokensTable extends Migration
     public function up()
     {
         Schema::create('2fa_tokens', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             // $table->unsignedBigInteger('user_id');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('token');

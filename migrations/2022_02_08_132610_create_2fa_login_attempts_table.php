@@ -14,7 +14,7 @@ class Create2faLoginAttemptsTable extends Migration
     public function up()
     {
         Schema::create('2fa_login_attempts', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('uid');
             $table->boolean('succeed')->default(false);
