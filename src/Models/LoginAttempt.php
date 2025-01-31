@@ -5,13 +5,10 @@ namespace Hydrat\Laravel2FA\Models;
 use App\User;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Hydrat\Laravel2FA\Contracts\TwoFactorAuthenticatableContract;
 
 class LoginAttempt extends Model
 {
-    use HasFactory;
-
     /**
      * The table associated with the model.
      *
@@ -65,7 +62,7 @@ class LoginAttempt extends Model
     {
         $ip  = $_SERVER['REMOTE_ADDR'];
         $url = 'https://freegeoip.app/json/' . $ip;
-        
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);

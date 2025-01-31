@@ -4,12 +4,9 @@ namespace Hydrat\Laravel2FA\Models;
 
 use App\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Token extends Model
 {
-    use HasFactory;
-
     /**
      * The table associated with the model.
      *
@@ -61,7 +58,7 @@ class Token extends Model
     {
         return $query->where('expires_at', '<', now());
     }
-   
+
     /**
      * Get unexpired codes only.
      */
